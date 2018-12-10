@@ -82,7 +82,7 @@ namespace Microsoft.AspNetCore.Hosting
         /// <remarks>
         /// This is much more efficient than the HttpContextAccessor. HttpContextAccessor remains the only
         /// way to have a singleton service depends on the HttpContext and must NEVER be used. Singleton
-        /// services that MAY need the HttpContxt must be designed with explicit HttpContext method parameter 
+        /// services that MAY need the HttpContext must be designed with explicit HttpContext method parameter 
         /// injection.
         /// A contrario, Scoped services CAN easily depend on the HttpContext thanks to this ScopedHttpContext.
         /// </remarks>
@@ -90,11 +90,11 @@ namespace Microsoft.AspNetCore.Hosting
         /// <returns>The builder.</returns>
         public static IWebHostBuilder UseScopedHttpContext( this IWebHostBuilder builder ) => ScopedHttpContext.Install( builder );
 
-        class PostInstanciationFilter : IStartupFilter
+        class PostInstantiationFilter : IStartupFilter
         {
             readonly GrandOutputConfigurationInitializer _initalizer;
 
-            public PostInstanciationFilter( GrandOutputConfigurationInitializer initalizer )
+            public PostInstantiationFilter( GrandOutputConfigurationInitializer initalizer )
             {
                 _initalizer = initalizer;
             }
@@ -121,9 +121,9 @@ namespace Microsoft.AspNetCore.Hosting
                 // Second, give it the environment and its section.
                 initializer.Initialize( ctx.HostingEnvironment, loggingBuilder, section );
             } );
-            // Now, registers the PostInstanciationFilter as a transient object.
+            // Now, registers the PostInstantiationFilter as a transient object.
             // This startup filter will inject the Application service IApplicationLifetime.
-            return AddPostInstanciationStartupFilterAndRegisterMonitor( builder, initializer );
+            return AddPostInstantiationStartupFilterAndRegisterMonitor( builder, initializer );
         }
 
         /// <summary>
@@ -136,14 +136,14 @@ namespace Microsoft.AspNetCore.Hosting
             {
                 initializer.Initialize( ctx.HostingEnvironment, loggingBuilder, configuration );
             } );
-            return AddPostInstanciationStartupFilterAndRegisterMonitor( builder, initializer );
+            return AddPostInstantiationStartupFilterAndRegisterMonitor( builder, initializer );
         }
 
-        static IWebHostBuilder AddPostInstanciationStartupFilterAndRegisterMonitor( IWebHostBuilder builder, GrandOutputConfigurationInitializer initializer )
+        static IWebHostBuilder AddPostInstantiationStartupFilterAndRegisterMonitor( IWebHostBuilder builder, GrandOutputConfigurationInitializer initializer )
         {
             return builder.ConfigureServices( services =>
             {
-                services.AddTransient<IStartupFilter>( _ => new PostInstanciationFilter( initializer ) );
+                services.AddTransient<IStartupFilter>( _ => new PostInstantiationFilter( initializer ) );
                 services.TryAddScoped<IActivityMonitor>( sp => new ActivityMonitor() );
             } );
         }
